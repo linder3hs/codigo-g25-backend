@@ -36,3 +36,8 @@ try:
   persona["lastname"]
 except KeyError as e:
   print(f"Error: El key {e} no se encontro")
+
+try:
+  print("2" + 2)
+except TypeError as e:
+  print(f"Error: {e}")
