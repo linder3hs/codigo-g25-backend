@@ -55,8 +55,10 @@ class Estudiante(Persona):
         # para poder enviarlo a la clase padre, la forma en la que enviamos
         # los atributos es mediante super()
         super().__init__(nombre, fecha_nacimiento, dni, nacionalidad)
+        # __ privado
         self.__codigo = codigo
-        self.correo_estudiantil = correo_estudiantil
+        # _ protegido
+        self._correo_estudiantil = correo_estudiantil
 
     def mostrar_notas(self):
         """print information"""
