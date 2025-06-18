@@ -1,5 +1,6 @@
 class User:
-    def __init__(self, name, lastname, email, password):
+    def __init__(self, id, name, lastname, email, password):
+        self.id = id
         self.name = name
         self.lastname = lastname
         self.email = email
@@ -7,6 +8,7 @@ class User:
 
     def to_dict(self):
         return {
+            "id": self.id,
             "name": self.name,
             "lastname": self.lastname,
             "email": self.email,
