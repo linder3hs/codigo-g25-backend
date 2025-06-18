@@ -83,6 +83,24 @@ def create_user():
         }), 500
 
 
+@app.route('/api/v1/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        for index, user in enumerate(users):
+            if user.id == user_id:
+                users.pop(index)
+                return jsonify({
+                    "message": "Usuario eliminado"
+                })
+
+        return jsonify({
+            "message": "Usuario no encontrado"
+        })
+    except Exception as e:
+        return jsonify({
+          "error": str(e)
+        }), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
