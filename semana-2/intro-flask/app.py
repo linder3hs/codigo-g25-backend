@@ -63,23 +63,24 @@ def get_user():
         }), 500
 
 
-# @app.route("/api/v1/users/<int:user_id>", methods=['GET'])
-# def get_user_by_id(user_id):
-#     try:
-#         for user in users:
-#             if user.id == user_id:
-#                 return jsonify({
-#                     "message": "Busqueda por usuario",
-#                     "user": user.to_dict()
-#                 })
+@app.route("/api/v1/users/<int:user_id>", methods=['GET'])
+def get_user_by_id(user_id):
+    try:
+        user = User.query.get(user_id)
 
-#         return jsonify({
-#             "message": "Usuario no encontrado"
-#         })
-#     except Exception as e:
-#         return jsonify({
-#           "error": str(e)
-#         }),
+        if user:
+            return jsonify({
+                "message": "Usuario encontrado",
+                "user": user.to_dict()
+            })
+        else:
+            return jsonify({
+                "message": "Usuario no encontrado"
+            }), 404
+    except Exception as e:
+        return jsonify({
+          "error": str(e)
+        }),
 
 @app.route("/api/v1/users", methods=["POST"])
 def create_user():
