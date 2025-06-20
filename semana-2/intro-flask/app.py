@@ -29,8 +29,14 @@ def verify_database_connection():
         print(f"Error: {e}")
         return False
 
-verify_database_connection()
-users = []
+if verify_database_connection():
+    try:
+        with app.app_context():
+            db.create_all()
+            print("Tablas creadas correctacmente")
+    except Exception as e:
+        print(f"Error al crear las tablas: {e}")
+
 
 # por defecto todas las rutas son GET
 @app.route("/")
@@ -43,12 +49,9 @@ def home():
 @app.route("/api/v1/users")
 def get_user():
     try:
-        # crear una lista para poder convertir mi
-        # arreglo de instancias a un arreglo de dicts
-        user_list = []
-
-        for user in users:
-            user_list.append(user.to_dict())
+        # SELECT * FROM users
+        users = User.query.all()
+        user_list = [user.to_dict() for user in users]
 
         return jsonify({
               "message:": "Lista de usuarios",
@@ -60,39 +63,47 @@ def get_user():
         }), 500
 
 
-@app.route("/api/v1/users/<int:user_id>", methods=['GET'])
-def get_user_by_id(user_id):
-    try:
-        for user in users:
-            if user.id == user_id:
-                return jsonify({
-                    "message": "Busqueda por usuario",
-                    "user": user.to_dict()
-                })
+# @app.route("/api/v1/users/<int:user_id>", methods=['GET'])
+# def get_user_by_id(user_id):
+#     try:
+#         for user in users:
+#             if user.id == user_id:
+#                 return jsonify({
+#                     "message": "Busqueda por usuario",
+#                     "user": user.to_dict()
+#                 })
 
-        return jsonify({
-            "message": "Usuario no encontrado"
-        })
-    except Exception as e:
-        return jsonify({
-          "error": str(e)
-        }),
+#         return jsonify({
+#             "message": "Usuario no encontrado"
+#         })
+#     except Exception as e:
+#         return jsonify({
+#           "error": str(e)
+#         }),
 
 @app.route("/api/v1/users", methods=["POST"])
 def create_user():
     try:
         data = request.get_json()
-        # creamos la instancia con la clase user
-        id = len(users) + 1
+        # validar que el correo no exista
+        existing_user = User.query.filter_by(email=data.get("email")).first()
+
+        if existing_user:
+            return jsonify({
+                "error": "Hubo un error al crear el usuario"
+            })
+
         new_user = User(
-            id,
-            data.get("name"),
-            data.get("lastname"),
-            data.get("email"),
-            data.get("password")
+            name=data.get("name"),
+            lastname=data.get("lastname"),
+            email=data.get("email"),
+            password=data.get("password")
         )
 
-        users.append(new_user)
+        # Guarde la informacion en la DB
+        db.session.add(new_user)
+        db.session.commit()
+
         return jsonify({
             "message": "Usuario creado",
             "user": new_user.to_dict()
@@ -102,56 +113,56 @@ def create_user():
             "error": str(e)
         }), 500
 
-@app.route('/api/v1/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    try:
-        data = request.get_json()
+# @app.route('/api/v1/users/<int:user_id>', methods=['PUT'])
+# def update_user(user_id):
+#     try:
+#         data = request.get_json()
 
-        # Buscar el usuario por ID
-        for user in users:
-            if user.id == user_id:
-                # Actualizar solo los campos que se envían en el request
-                if data.get("name"):
-                    user.name = data.get("name")
-                if data.get("lastname"):
-                    user.lastname = data.get("lastname")
-                if data.get("email"):
-                    user.email = data.get("email")
-                if data.get("password"):
-                    user.password = data.get("password")
+#         # Buscar el usuario por ID
+#         for user in users:
+#             if user.id == user_id:
+#                 # Actualizar solo los campos que se envían en el request
+#                 if data.get("name"):
+#                     user.name = data.get("name")
+#                 if data.get("lastname"):
+#                     user.lastname = data.get("lastname")
+#                 if data.get("email"):
+#                     user.email = data.get("email")
+#                 if data.get("password"):
+#                     user.password = data.get("password")
 
-                return jsonify({
-                    "message": "Usuario actualizado",
-                    "user": user.to_dict()
-                }), 200
+#                 return jsonify({
+#                     "message": "Usuario actualizado",
+#                     "user": user.to_dict()
+#                 }), 200
 
-        # Si no se encuentra el usuario
-        return jsonify({
-            "message": "Usuario no encontrado"
-        }), 404
+#         # Si no se encuentra el usuario
+#         return jsonify({
+#             "message": "Usuario no encontrado"
+#         }), 404
 
-    except Exception as e:
-        return jsonify({
-            "error": str(e)
-        }), 500
+    # except Exception as e:
+    #     return jsonify({
+    #         "error": str(e)
+    #     }), 500
 
-@app.route('/api/v1/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    try:
-        for index, user in enumerate(users):
-            if user.id == user_id:
-                users.pop(index)
-                return jsonify({
-                    "message": "Usuario eliminado"
-                })
+# @app.route('/api/v1/users/<int:user_id>', methods=['DELETE'])
+# def delete_user(user_id):
+#     try:
+#         for index, user in enumerate(users):
+#             if user.id == user_id:
+#                 users.pop(index)
+#                 return jsonify({
+#                     "message": "Usuario eliminado"
+#                 })
 
-        return jsonify({
-            "message": "Usuario no encontrado"
-        })
-    except Exception as e:
-        return jsonify({
-          "error": str(e)
-        }), 500
+#         return jsonify({
+#             "message": "Usuario no encontrado"
+#         })
+#     except Exception as e:
+#         return jsonify({
+#           "error": str(e)
+#         }), 500
 
 
 if __name__ == "__main__":
