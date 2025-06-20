@@ -114,38 +114,42 @@ def create_user():
             "error": str(e)
         }), 500
 
-# @app.route('/api/v1/users/<int:user_id>', methods=['PUT'])
-# def update_user(user_id):
-#     try:
-#         data = request.get_json()
+@app.route('/api/v1/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        data = request.get_json()
+        user = User.query.get(user_id)
 
-#         # Buscar el usuario por ID
-#         for user in users:
-#             if user.id == user_id:
-#                 # Actualizar solo los campos que se envían en el request
-#                 if data.get("name"):
-#                     user.name = data.get("name")
-#                 if data.get("lastname"):
-#                     user.lastname = data.get("lastname")
-#                 if data.get("email"):
-#                     user.email = data.get("email")
-#                 if data.get("password"):
-#                     user.password = data.get("password")
+        if not user:
+            return jsonify({
+                "message": "Hubo un error"
+            }), 404
 
-#                 return jsonify({
-#                     "message": "Usuario actualizado",
-#                     "user": user.to_dict()
-#                 }), 200
+        if data.get("name"):
+            user.name = data.get("name")
+        if data.get("lastname"):
+            user.lastname = data.get("lastname")
+        if data.get("email"):
+            user.email = data.get("email")
+        if data.get("password"):
+            user.password = data.get("password")
 
-#         # Si no se encuentra el usuario
-#         return jsonify({
-#             "message": "Usuario no encontrado"
-#         }), 404
+        db.session.commit()
 
-    # except Exception as e:
-    #     return jsonify({
-    #         "error": str(e)
-    #     }), 500
+        return jsonify({
+            "message": "Usuario actualizado",
+            "user": user.to_dict()
+        }), 200
+
+        # Si no se encuentra el usuario
+        return jsonify({
+            "message": "Usuario no encontrado"
+        }), 404
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 # @app.route('/api/v1/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
