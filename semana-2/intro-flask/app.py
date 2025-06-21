@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from models.user import User
 from models.post import Post
 from database import setup_database, db
+from config import Config
 
 # Cargar credenciales secretas
 load_dotenv()
@@ -11,10 +12,7 @@ load_dotenv()
 # instanciar Flask
 app = Flask(__name__)
 
-# Vamos a crear la URL de conection a la base de datos
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config.from_object(Config)
 
 setup_database(app)
 
