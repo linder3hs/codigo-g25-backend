@@ -41,3 +41,41 @@ class UserController:
             return new_user.to_dict(), None
         except Exception as e:
             return None, str(e)
+
+    @staticmethod
+    def update_user(user_id, data):
+        try:
+            user = User.query.get(user_id)
+
+            if not user:
+                return None, "Hubo un error al actualizar el usuario"
+
+            if data.get("name"):
+                user.name = data.get("name")
+            if data.get("lastname"):
+                user.lastname = data.get("lastname")
+            if data.get("email"):
+                user.email = data.get("email")
+            if data.get("password"):
+                user.password = data.get("password")
+
+            db.session.commit()
+
+            return user.to_dict(), None
+        except Exception as e:
+          return None, str(e)
+
+    @staticmethod
+    def delete_user(user_id):
+        try:
+            user = User.query.get(user_id)
+
+            if not user:
+                return None, "Hubo un error al actualizar el usuario"
+
+            db.session.delete(user)
+            db.session.commit()
+
+            return "Usuario eliminado correctamente", None
+        except Exception as e:
+            return None, str(e)
