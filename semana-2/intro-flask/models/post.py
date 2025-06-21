@@ -5,7 +5,7 @@ class Post(db.Model):
     __tablename__ = "posts"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.Srting(245), nullable=False)
+    title = db.Column(db.String(245), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(UTC))
     updated_at = db.Column(db.DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))

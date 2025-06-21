@@ -1,9 +1,9 @@
 import os
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from models.user import User, db
-from sqlalchemy import text
+from models.user import User
+from models.post import Post
+from database import setup_database, db
 
 # Cargar credenciales secretas
 load_dotenv()
@@ -16,29 +16,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{os.getenv('DB_USER')}
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-db.init_app(app)
+setup_database(app)
 
-def verify_database_connection():
-    try:
-        with app.app_context():
-            result = db.session.execute(text('SELECT 1'))
-            result.fetchone()
-            print("Connection Success")
-            return True
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
-
-if verify_database_connection():
-    try:
-        with app.app_context():
-            db.create_all()
-            print("Tablas creadas correctacmente")
-    except Exception as e:
-        print(f"Error al crear las tablas: {e}")
-
-
-# por defecto todas las rutas son GET
 @app.route("/")
 def home():
     return jsonify({
@@ -67,7 +46,6 @@ def get_user():
 def get_user_by_id(user_id):
     try:
         user = User.query.get(user_id)
-        
         if user:
             return jsonify({
                 "message": "Usuario encontrado",

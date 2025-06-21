@@ -21,6 +21,7 @@ def create_tables(app):
     try:
         with app.app_context():
             db.create_all()
+            print("Se crearon las tablas")
     except Exception as e:
         print(f"Errora al crear tablas: {e}")
         return False
