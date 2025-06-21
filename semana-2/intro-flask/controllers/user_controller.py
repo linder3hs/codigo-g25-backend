@@ -16,7 +16,7 @@ class UserController:
             user = User.query.get(user_id)
             if user:
               return user.to_dict(), None
-            return None, "Usuario no encontrado" 
+            return None, "Usuario no encontrado"
         except Exception as e:
             return None, str(e)
 
