@@ -28,3 +28,15 @@ def create_post():
         "message": "Post creado correctamente",
         "post": post
     })
+
+@post_blueprint.route('/posts/<int:post_id>')
+def get_post(post_id):
+    post, error = PostController.get_post_by_id(post_id)
+
+    if error:
+        return jsonify({"error": error}), 500
+
+    return jsonify({
+        "message": "Post",
+        "post": post
+    })

@@ -26,3 +26,12 @@ class PostController:
             return new_post.to_dict(), None
         except Exception as e:
             return None, str(e)
+
+    @staticmethod
+    def get_post_by_id(post_id):
+        try:
+            post = Post.query.get(post_id)
+            print(post.author.name)
+            return post.to_dict(), None
+        except Exception as e:
+            return None, str(e)
