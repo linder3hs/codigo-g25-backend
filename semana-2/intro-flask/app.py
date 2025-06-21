@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from user import User, db
+from models.user import User, db
 from sqlalchemy import text
 
 # Cargar credenciales secretas
@@ -67,7 +67,7 @@ def get_user():
 def get_user_by_id(user_id):
     try:
         user = User.query.get(user_id)
-
+        
         if user:
             return jsonify({
                 "message": "Usuario encontrado",

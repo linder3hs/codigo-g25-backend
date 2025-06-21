@@ -1,7 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, UTC
-
-db = SQLAlchemy()
+from database import db
 
 class User(db.Model):
     # indicar el nombre de la tabla
@@ -15,6 +13,8 @@ class User(db.Model):
     # se coloca los campos fecha_creacion fecha_actualizacion
     created_at = db.Column(db.DateTime, default=datetime.now(UTC))
     updated_at = db.Column(db.DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
+
+    posts = db.relationship('Post', backref='author', lazy=True, cascade='all, delete-orphan')
 
     def __init__(self, name, lastname, email, password):
         self.name = name
