@@ -1,5 +1,6 @@
 from models.user import User, db
 from models.role import Role
+from datetime import datetime, UTC
 
 class AuthController:
 
@@ -35,6 +36,30 @@ class AuthController:
 
         except Exception as e:
             db.session.rollback()
+            return None, f"Error: {e}"
+
+    @staticmethod
+    def authenticate_user(email, password):
+        try:
+            if not email or not password:
+                return None, "Email y Password son requeridos"
+
+            user = User.query.filter_by(email=email.lower().strip()).first()
+
+            if not user:
+                return None, 'Usuario no encontrado'
+
+            if user.password != password:
+                user.failed_login_attempts += 1
+                db.session.commit()
+                return None, 'El password no coincide'
+
+            user.failed_login_attempts = 0
+            user.last_login = datetime.now(UTC)
+            db.session.commit()
+
+            return user.to_dict(), None
+        except Exception as e:
             return None, f"Error: {e}"
 
     @staticmethod
