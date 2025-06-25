@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from database import db
+from user_role import user_roles
 import re
 
 class User(db.Model):
@@ -21,6 +22,7 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     posts = db.relationship('Post', backref='author', lazy=True, cascade='all, delete-orphan')
+    roles = db.relationship('Role', secondary=user_roles, back_populates='users')
 
     def __init__(self, name, lastname, email, password):
         self.name = name
