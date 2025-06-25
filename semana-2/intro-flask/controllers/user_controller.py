@@ -1,4 +1,5 @@
 from models.user import User, db
+from models.role import Role
 
 class UserController:
 
@@ -12,7 +13,7 @@ class UserController:
                 user_dict = user.to_dict()
                 user_dict['roles'] = [role.to_dict() for role in user.roles]
                 user_data.append(user_dict)
-            
+
             return user_data, None
         except Exception as e:
             return None, str(e)
@@ -22,7 +23,9 @@ class UserController:
         try:
             user = User.query.get(user_id)
             if user:
-              return user.to_dict(), None
+              user_dict = user.to_dict()
+              user_dict['roles'] = [role.to_dict() for role in user.roles]
+              return user_dict, None
             return None, "Usuario no encontrado"
         except Exception as e:
             return None, str(e)
@@ -74,15 +77,35 @@ class UserController:
 
     @staticmethod
     def delete_user(user_id):
+        # Sof delete (Eliminado por cambio de status)
         try:
             user = User.query.get(user_id)
 
             if not user:
                 return None, "Hubo un error al actualizar el usuario"
 
-            db.session.delete(user)
+            user.is_active = False
             db.session.commit()
 
-            return "Usuario eliminado correctamente", None
+            return "Usuario desactivado correctamente", None
+        except Exception as e:
+            return None, str(e)
+
+    @staticmethod
+    def asign_role(user_id, role_id):
+        try:
+            user = User.query.get(user_id)
+            role = Role.query.get(role_id)
+
+            if not user or not role:
+                return None, "El usuario y el role son requeridos"
+
+            if role not in user.roles:
+                user.roles.append(role)
+                db.session.commit()
+
+                return "Role asignado correctamente", None
+            else:
+                return None, "El usuario ya tiene este role"
         except Exception as e:
             return None, str(e)
