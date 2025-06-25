@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 from database import db
-from user_role import user_roles
+from models.user_role import user_roles
 import re
 
 class User(db.Model):

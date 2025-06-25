@@ -3,6 +3,8 @@ from database import setup_database
 from config import Config
 from routes.user_routes import user_blueprint
 from routes.post_routes import post_blueprint
+from models.role import Role
+
 
 app = Flask(__name__)
 
