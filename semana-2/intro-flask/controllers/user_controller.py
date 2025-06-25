@@ -6,7 +6,14 @@ class UserController:
     def get_all_users():
         try:
             users = User.query.all()
-            return [user.to_dict() for user in users], None
+            user_data = []
+
+            for user in users:
+                user_dict = user.to_dict()
+                user_dict['roles'] = [role.to_dict() for role in user.roles]
+                user_data.append(user_dict)
+            
+            return user_data, None
         except Exception as e:
             return None, str(e)
 
