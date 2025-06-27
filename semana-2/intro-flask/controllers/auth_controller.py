@@ -1,6 +1,7 @@
 from models.user import User, db
 from models.role import Role
 from datetime import datetime, UTC
+from utils.password_manager import PasswordManager
 
 class AuthController:
 
@@ -16,7 +17,7 @@ class AuthController:
             if existing_user:
                 return None, 'El email ya esta registrados'
 
-            password_valid, password_message = User.validate_password(data.get('password'))
+            password_valid, password_message = PasswordManager.validate_password(data.get('password'))
             if not password_valid:
                 return None, password_message
 
@@ -34,6 +35,7 @@ class AuthController:
             db.session.add(new_user)
             db.session.commit()
 
+            return new_user, None
         except Exception as e:
             db.session.rollback()
             return None, f"Error: {e}"
@@ -49,7 +51,7 @@ class AuthController:
             if not user:
                 return None, 'Usuario no encontrado'
 
-            if user.password != password:
+            if not user.check_password(password):
                 user.failed_login_attempts += 1
                 db.session.commit()
                 return None, 'El password no coincide'

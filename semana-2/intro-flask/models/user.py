@@ -34,6 +34,9 @@ class User(db.Model):
     def set_password(self, password):
         self.password = PasswordManager.hash_password(password)
 
+    def check_password(self, password):
+        return PasswordManager.verify_password(password, self.password)
+
     def to_dict(self, show_password=False):
         user_dict = {
             "id": self.id,
