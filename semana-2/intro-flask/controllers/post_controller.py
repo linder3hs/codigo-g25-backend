@@ -4,9 +4,9 @@ from models.post import Post, db
 class PostController:
 
     @staticmethod
-    def get_all_post():
+    def get_all_post(user_id):
         try:
-            posts = Post.query.all()
+            posts = Post.query.filter_by(user_id=user_id)
             return [post.to_dict() for post in posts], None
         except Exception as e:
             return None, str(e)

@@ -69,7 +69,16 @@ class AuthController:
             user.last_login = datetime.now(UTC)
             db.session.commit()
 
-            return user.to_dict(), None
+            access_token = TokenManager.generate_token(user.id)
+
+            response = {
+                "user": user.to_dict(),
+                "access_token": access_token,
+                "token_type": "Bearer",
+                "message": "Autenticación correcta"
+            }
+
+            return response, None
         except Exception as e:
             return None, f"Error: {e}"
 

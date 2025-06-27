@@ -5,7 +5,7 @@ class TokenManager:
 
     @staticmethod
     def generate_token(user_id):
-        new_token = create_access_token(identity=user_id, additional_claims={
+        new_token = create_access_token(identity=str(user_id), additional_claims={
             'created_at': datetime.now(UTC).isoformat()
         })
         return new_token
