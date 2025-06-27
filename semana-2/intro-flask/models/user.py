@@ -2,6 +2,7 @@ from datetime import datetime, UTC
 from database import db
 from models.user_role import user_roles
 import re
+from utils.password_manager import PasswordManager
 
 class User(db.Model):
     # indicar el nombre de la tabla
@@ -28,7 +29,10 @@ class User(db.Model):
         self.name = name
         self.lastname = lastname
         self.email = email.lower().strip()
-        self.password = password
+        self.set_password(password)
+
+    def set_password(self, password):
+        self.password = PasswordManager.hash_password(password)
 
     def to_dict(self, show_password=False):
         user_dict = {
@@ -53,23 +57,6 @@ class User(db.Model):
         return f"{self.name} {self.lastname}"
 
     @staticmethod
-    def validate_emal(email):
+    def validate_email(email):
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return re.match(email_pattern, email) is not None
-
-    @staticmethod
-    def validate_password(password):
-        # validamos cantidad de caracteres
-        if len(password) < 8:
-            return False, 'La contraseña debe tener al menos 8 caracteres.'
-
-        if not re.search(r'[A-Z]', password):
-            return False, 'La contraseña debe contener al menos una letra mayúscula.'
-
-        if not re.search(r'[a-z]', password):
-            return False, 'La contraseña debe contener al menos una letra minúscula.'
-
-        if not re.search(r'\d', password):
-            return False, 'La contraseñ debe contener al menu un número.'
-
-        return True, 'Contraseñ válida'

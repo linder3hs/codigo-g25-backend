@@ -70,7 +70,7 @@ class AuthController:
             if not data.get(field) or not data.get(field).strip():
                 return f"El campo {field} es requerido."
 
-        if not User.validate_emal(data.get('email')):
+        if not User.validate_email(data.get('email')):
             return "Formato de correo invalido"
 
         return None
