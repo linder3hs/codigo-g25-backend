@@ -2,6 +2,7 @@ from models.user import User, db
 from models.role import Role
 from datetime import datetime, UTC
 from utils.password_manager import PasswordManager
+from utils.token_manager import TokenManager
 
 class AuthController:
 
@@ -35,7 +36,15 @@ class AuthController:
             db.session.add(new_user)
             db.session.commit()
 
-            return new_user.to_dict(), None
+            access_token = TokenManager.generate_token(new_user.id)
+
+            response = {
+                "user": new_user.to_dict(),
+                "access_token": access_token,
+                "token_type": "Bearer"
+            }
+
+            return response, None
         except Exception as e:
             db.session.rollback()
             return None, f"Error: {e}"

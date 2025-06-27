@@ -56,8 +56,14 @@ class User(db.Model):
 
         return user_dict
 
-    def parse_fullname(self):
+    def get_fullname(self):
         return f"{self.name} {self.lastname}"
+
+    def has_role(self, role_name):
+        return any(role.name == role_name.upper() for role in self.roles)
+
+    def is_admin(self):
+        return self.has_role('ADMIN')
 
     @staticmethod
     def validate_email(email):

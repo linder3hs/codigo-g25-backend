@@ -1,6 +1,7 @@
 from flask import Flask
 from database import setup_database
 from config import Config
+from flask_jwt_extended import JWTManager
 from routes.user_routes import user_blueprint
 from routes.post_routes import post_blueprint
 from routes.auth_routes import auth_blueprint
@@ -10,6 +11,8 @@ from models.role import Role
 app = Flask(__name__)
 
 app.config.from_object(Config)
+
+jwt = JWTManager(app)
 
 setup_database(app)
 
