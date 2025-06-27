@@ -35,7 +35,7 @@ class AuthController:
             db.session.add(new_user)
             db.session.commit()
 
-            return new_user, None
+            return new_user.to_dict(), None
         except Exception as e:
             db.session.rollback()
             return None, f"Error: {e}"

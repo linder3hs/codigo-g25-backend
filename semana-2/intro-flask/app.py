@@ -3,6 +3,7 @@ from database import setup_database
 from config import Config
 from routes.user_routes import user_blueprint
 from routes.post_routes import post_blueprint
+from routes.auth_routes import auth_blueprint
 from models.role import Role
 
 
@@ -16,6 +17,7 @@ prefix = '/api/v1'
 
 app.register_blueprint(user_blueprint, url_prefix=prefix)
 app.register_blueprint(post_blueprint, url_prefix=prefix)
+app.register_blueprint(auth_blueprint, url_prefix=prefix)
 
 if __name__ == "__main__":
     app.run(debug=True)

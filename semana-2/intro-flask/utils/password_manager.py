@@ -18,7 +18,7 @@ class PasswordManager:
         Verificar si el password que envia el cliente hacer match con el password de la base de datos
         """
         try:
-            return bcrypt.checkpw(password.encode('utf-8'), hashed_password.endode('utf-8'))
+            return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
         except Exception:
             return False
 
