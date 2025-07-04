@@ -1,4 +1,7 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from .serializers import (
   UserSerializer,
@@ -39,3 +42,22 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return User.objects.all()
         return User.objects.filter(id=self.request.user.id)
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                'message': 'Usuario creado correctamente',
+                'user': UserSerializer(user).data,
+                'token': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token)
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
