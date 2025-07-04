@@ -62,3 +62,28 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
 
         return user
+    
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'profile']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+
+        # Update del usuario
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # update del perfil
+        if profile_data:
+            profile = instance.profile
+            for attr, value, in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+        
+        return instance
