@@ -15,4 +15,4 @@ class Product(models.Model):
         db_table = 'products'
 
     def __str__(self):
-        return f"{self.name} - {self.stock}"
+        return f"{self.name} - S/ {self.price}"
