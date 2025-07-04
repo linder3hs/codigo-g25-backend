@@ -15,16 +15,21 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        if self.action in ['create', 'register']:
-            permission_classes = [permissions.AllowAny]
-        elif self.action in ['list']:
-            permission_classes = [permissions.IsAdminUser]
-        elif self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
-            permission_classes = [permissions.IsAuthenticated]
-        else:
-            permission_classes = [permissions.IsAuthenticated]
+        try:
+            if self.action in ['create', 'register']:
+                permission_classes = [permissions.AllowAny]
+            elif self.action in ['list']:
+                permission_classes = [permissions.IsAdminUser]
+            elif self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
+                permission_classes = [permissions.IsAuthenticated]
+            else:
+                permission_classes = [permissions.IsAuthenticated]
 
-        return [permission() for permission in permission_classes]
+            return [permission() for permission in permission_classes]
+        except Exception as e:
+            print("ERROR IN get_permissions")
+            print(e)
+        
 
 
     def get_serializer_class(self):
@@ -32,32 +37,44 @@ class UserViewSet(viewsets.ModelViewSet):
         En base a la action que hagamos debemos usar
         un serializer
         """
-        if self.action in ['create', 'register']:
-            return UserRegistrationSerializer
-        elif self.action in ['update_profile']:
-            return UserProfileUpdateSerializer
-        return UserSerializer
+        try:
+            if self.action in ['create', 'register']:
+                return UserRegistrationSerializer
+            elif self.action in ['update_profile']:
+                return UserProfileUpdateSerializer
+            return UserSerializer
+        except Exception as e:
+            print("ERROR IN get_serializer_class")
+            print(e)
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return User.objects.all()
-        return User.objects.filter(id=self.request.user.id)
+        try:
+            if self.request.user.is_staff:
+                return User.objects.all()
+            return User.objects.filter(id=self.request.user.id)
+        except Exception as e:
+            print("ERROR IN get_queryset")
+            print(e)
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def register(self, request):
-        serializer = UserRegistrationSerializer(data=request.data)
+        try:
+            serializer = UserRegistrationSerializer(data=request.data)
 
-        if serializer.is_valid():
-            user = serializer.save()
-            refresh = RefreshToken.for_user(user)
+            if serializer.is_valid():
+                user = serializer.save()
+                refresh = RefreshToken.for_user(user)
 
-            return Response({
-                'message': 'Usuario creado correctamente',
-                'user': UserSerializer(user).data,
-                'token': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token)
-                }
-            }, status=status.HTTP_201_CREATED)
+                return Response({
+                    'message': 'Usuario creado correctamente',
+                    'user': UserSerializer(user).data,
+                    'token': {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token)
+                    }
+                }, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print("ERROR IN get_permissions")
+            print(e)

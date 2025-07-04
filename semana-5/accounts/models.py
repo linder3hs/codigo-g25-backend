@@ -21,7 +21,7 @@ class UserProfile(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created):
+def create_user_profile(sender, instance, created, **kwargs):
     """create profile after user created"""
     print(sender)
     if created:
