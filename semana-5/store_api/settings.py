@@ -20,7 +20,7 @@ DEBUG = os.getenv('DEBUG')
 
 # RESEND
 RESEND_API_KEY=os.getenv('RESEND_API_KEY')
-DEFAULT_FROM_EMAIL='linder.hassinger@helloiconic.com'
+DEFAULT_FROM_EMAIL='onboarding@resend.dev'
 FRONTEND_URL='http://localhost:3000'
 
 ALLOWED_HOSTS = []

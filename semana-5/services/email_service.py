@@ -27,10 +27,10 @@ class EmailService:
             }
 
             email = resend.Emails.send(params=params)
-            logger.info(f"Email enviado correctamente a {to_email}, id: {email.get('id')}")
+            print(f"Email enviado correctamente a {to_email}, id: {email.get('id')}")
             return True, email.get('id')
         except Exception as e:
-            logger.error(f"Hubo un error en el envio de correo {e}")
+            print(f"Hubo un error en el envio de correo {e}")
             return False, str(e)
     
 
@@ -40,7 +40,7 @@ class EmailService:
 
         context = {
             'user': user,
-            'verifaction_link': verification_link,
+            'verification_link': verification_link,
             'frontend_url': settings.FRONTEND_URL
         }
 

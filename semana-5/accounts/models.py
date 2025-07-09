@@ -101,6 +101,8 @@ def send_verification_on_registration(sender, instance, created, **kwargs):
     """ Envia el correo al momento de registrarnos """
     if created:
         verification_token = EmailVerificationToken.objects.create(user=instance)
+        print(verification_token)
+        print(verification_token.token)
 
         email_service = EmailService()
         ok, result = email_service.send_verification_email(instance, verification_token.token)
