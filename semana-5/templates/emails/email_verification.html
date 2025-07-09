@@ -1,0 +1,53 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Verificar Email{% endblock %}
+
+{% block header %}¡Bienvenido!{% endblock %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 20px;">¡Hola {{ user.first_name|default:user.username }}!</h2>
+
+<p style="font-size: 16px; margin-bottom: 20px;">
+    ¡Gracias por registrarte en nuestra plataforma! Estamos emocionados de tenerte con nosotros.
+</p>
+
+<p style="font-size: 16px; margin-bottom: 20px;">
+    Para completar tu registro y activar tu cuenta, necesitamos verificar tu dirección de correo electrónico.
+</p>
+
+<div class="highlight">
+    <p style="margin: 0; font-weight: 600;">
+        🔐 Tu cuenta está temporalmente desactivada hasta que verifiques tu email.
+    </p>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ verification_link }}" class="button">
+        ✅ Verificar mi Email
+    </a>
+</div>
+
+<p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+    <strong>⏰ Este enlace expira en 24 horas.</strong>
+</p>
+
+<p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+    Si el botón no funciona, copia y pega este enlace en tu navegador:
+</p>
+
+<p
+    style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 12px; color: #666;">
+    {{ verification_link }}
+</p>
+
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #e9ecef;">
+
+<p style="font-size: 14px; color: #666;">
+    Si no te registraste en nuestra plataforma, puedes ignorar este mensaje de forma segura.
+</p>
+
+<p style="font-size: 16px; margin-top: 30px;">
+    ¡Esperamos verte pronto en la plataforma! 🚀<br>
+    <strong>El equipo de Mi Aplicación</strong>
+</p>
+{% endblock %}

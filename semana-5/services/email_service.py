@@ -44,7 +44,7 @@ class EmailService:
             'frontend_url': settings.FRONTEND_URL
         }
 
-        html_content = render_to_string('email/email_verification.html', context)
+        html_content = render_to_string('emails/email_verification.html', context)
         subject = "Verifica tu email"
 
         return self.send_email(user.email, subject, html_content)

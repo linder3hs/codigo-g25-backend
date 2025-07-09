@@ -6,6 +6,8 @@ from django.dispatch import receiver
 from datetime import timedelta
 from django.utils import timezone
 
+from services.email_service import EmailService 
+
 
 class EmailVerificationToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verification_tokens')
@@ -89,9 +91,21 @@ class UserActivity(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    """create profile after user created"""
-    print(sender)
+    """ create profile after user created """
     if created:
         UserProfile.objects.create(user=instance)
 
 
+@receiver(post_save, sender=User)
+def send_verification_on_registration(sender, instance, created, **kwargs):
+    """ Envia el correo al momento de registrarnos """
+    if created:
+        verification_token = EmailVerificationToken.objects.create(user=instance)
+
+        email_service = EmailService()
+        ok, result = email_service.send_verification_email(instance, verification_token.token)
+
+        if ok:
+            print(f"Email de verification envaido a {instance.email}")
+        else:
+            print(f"Hubo un error {result}")
