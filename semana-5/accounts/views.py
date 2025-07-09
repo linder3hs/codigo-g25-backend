@@ -38,6 +38,11 @@ def login_view(request):
     else:
         user = User.objects.get(username=username)
 
+    if not user.is_active:
+        return Response({
+            'error': 'Necesitas activar tu cuenta para iniciar sesión'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
     authenticated_user = authenticate(username=username, password=password)
 
     if authenticated_user:
