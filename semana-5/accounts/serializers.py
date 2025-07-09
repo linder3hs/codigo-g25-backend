@@ -1,7 +1,23 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from .models import UserProfile
+from .models import UserProfile, UserActivity
+
+
+class UserActivitySerializer(serializers.ModelSerializer):
+    action_display = serializers.CharField(source='get_action_display', read_only=True)
+
+    class Meta:
+        model = UserActivity
+        fields = ['action', 'action_display', 'ip_address', 'created_at']
+
+
+class LoginSerializer(serializers.Serializer):
+    """Serializer para poder autenticarnos no hace falta el modelo, debido a que solo
+    se solicita el username y el password"""
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

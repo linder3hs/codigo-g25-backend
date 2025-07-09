@@ -20,9 +20,39 @@ class UserProfile(models.Model):
         return f"{self.user.username}"
 
 
+
+class UserActivity(models.Model):
+    ACTION_CHOICES = [
+        ('LOGIN', 'Inicio de sesión'),
+        ('LOGOUT', 'Cierre de sesión'),
+        ('PASSWORD_CHANGE', 'Cambio de contraseña'),
+        ('PROFILE_UPDATE', 'Actualización de perfil'),
+        ('FAILED_LOGIN', 'Intento de inicio de sesión fallido')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=100, choices=ACTION_CHOICES)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    details = models.JSONField(blank=True, default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+        db_table = "user_activities"
+        verbose_name = "Actividad del usuario"
+        verbose_name_plural = "Actividades de los usuarios"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action}"
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """create profile after user created"""
     print(sender)
     if created:
         UserProfile.objects.create(user=instance)
+
+

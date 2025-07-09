@@ -1,13 +1,85 @@
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from .models import UserActivity
 from .serializers import (
   UserSerializer,
   UserRegistrationSerializer,
-  UserProfileUpdateSerializer
+  UserProfileUpdateSerializer,
+  LoginSerializer,
+  UserActivitySerializer
 )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def login_view(request):
+    serializer = LoginSerializer(data=request.data)
+
+    """ Si no es valido retornamos un 400 """
+    if not serializer.is_valid() :
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    username = serializer.validated_data['username']
+    password = serializer.validated_data['password']
+
+    # Buscar si es un username o un email
+    user = None
+
+    if '@' in username:
+        try:
+            user = User.objects.get(email=username)
+            username = user.username
+        except User.DoesNotExist:
+            pass
+    else:
+        user = User.objects.get(username=username)
+
+    authenticated_user = authenticate(username=username, password=password)
+
+    if authenticated_user:
+        UserActivity.objects.create(
+            user=authenticated_user,
+            action='LOGIN',
+            ip_address=get_ip_address(request),
+            user_agent=get_user_agent(request),
+            details={'login_method': 'username_password'}
+        )
+
+        refresh = RefreshToken.for_user(authenticated_user)
+
+        return Response({
+            'message': 'Login exitoso',
+            'user': UserSerializer(authenticated_user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }
+        })
+    else:
+        if user:
+            UserActivity.objects.create(
+                user=user,
+                action='FAILED_LOGIN',
+                ip_address=get_ip_address(request),
+                user_agent=get_user_agent(request),
+                details={'login_failed': 'error in authentication'}
+            )
+
+        return Response({
+            'message': 'Login faleid',
+            'error': 'Hubo un error en la autenticación'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+def get_ip_address(request):
+    return request.META.get('REMOTE_ADDR')
+
+def get_user_agent(request):
+    return request.META.get('HTTP_USER_AGENT')
 
 
 class UserViewSet(viewsets.ModelViewSet):
