@@ -4,14 +4,50 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import UserActivity
+from .models import UserActivity, EmailVerificationToken
 from .serializers import (
   UserSerializer,
   UserRegistrationSerializer,
   UserProfileUpdateSerializer,
   LoginSerializer,
-  UserActivitySerializer
 )
+
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def verify_email(request):
+    token = request.data.get('token')
+
+    if not token:
+        return Response({
+            'error': 'Token no encontrado'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        verification_token = EmailVerificationToken.objects.get(token=token)
+
+        if not verification_token.is_valid():
+            return Response({
+            'error': 'Token Invalid or Expires'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+        user = verification_token.user
+        user.is_active = True
+        user.save()
+
+        user.profile.email_verified = True
+        user.profile.save()
+
+        verification_token.mark_as_used()
+
+        return Response({
+            'message': 'Email verified successly.'
+        })
+    except Exception as e:
+        return Response({
+            'error': 'Token Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

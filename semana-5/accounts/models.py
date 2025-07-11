@@ -19,7 +19,7 @@ class EmailVerificationToken(models.Model):
 
     class Meta:
         db_table = 'email_verification_tokens'
-    
+
 
     def save(self, *args, **kwargs):
         if not self.token:
@@ -31,7 +31,7 @@ class EmailVerificationToken(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.expires_at
-    
+
     def is_valid(self):
         return not self.used and not self.is_expired()
 

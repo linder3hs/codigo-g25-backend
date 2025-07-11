@@ -1,7 +1,8 @@
-import resend
-from django.conf import settings
 from django.template.loader import render_to_string
+from django.conf import settings
 from django.utils.html import strip_tags
+
+import resend
 import logging
 
 logger = logging.getLogger(__name__)
