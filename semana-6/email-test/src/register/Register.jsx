@@ -31,6 +31,21 @@ export function Register() {
     });
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/v1/users/", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: inputs,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto mt-5">
       <CardHeader>
@@ -40,7 +55,7 @@ export function Register() {
         <CardDescription>Crea una cuenta y valida tu correo</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
             <Input
@@ -48,6 +63,7 @@ export function Register() {
               type="text"
               name="username"
               placeholder="Escribe tu username"
+              required
               onChange={handleInputChange}
               value={inputs.username}
             />
@@ -59,6 +75,7 @@ export function Register() {
               type="email"
               name="email"
               placeholder="Escribe tu correo electronico"
+              required
               onChange={handleInputChange}
               value={inputs.email}
             />
@@ -70,6 +87,7 @@ export function Register() {
               type="password"
               name="password"
               placeholder="Escribe tu password"
+              required
               onChange={handleInputChange}
               value={inputs.password}
             />
@@ -81,6 +99,7 @@ export function Register() {
               type="password"
               name="password_confirm"
               placeholder="Verifica tu password"
+              required
               onChange={handleInputChange}
               value={inputs.password_confirm}
             />
@@ -92,6 +111,7 @@ export function Register() {
               type="text"
               name="first_name"
               placeholder="Escribe tu nombre"
+              required
               onChange={handleInputChange}
               value={inputs.first_name}
             />
@@ -103,6 +123,7 @@ export function Register() {
               type="text"
               name="last_name"
               placeholder="Escribe tu apellido"
+              required
               onChange={handleInputChange}
               value={inputs.last_name}
             />
