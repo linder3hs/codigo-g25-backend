@@ -39,8 +39,17 @@ export function Register() {
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: inputs,
+        body: JSON.stringify(inputs),
       });
+
+      if (!response.ok) {
+        const error = JSON.stringify(await response.json(), null, 2);
+        alert(error);
+        return;
+      }
+      alert(
+        "La cuenta fue creada exitosamente, revisa tu correo para activarla."
+      );
     } catch (error) {
       console.log(error);
     }
