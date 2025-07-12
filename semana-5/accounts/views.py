@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import UserActivity, EmailVerificationToken
+from services.email_service import EmailService
 from .serializers import (
   UserSerializer,
   UserRegistrationSerializer,
@@ -25,6 +26,7 @@ def verify_email(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
+        # creamos un token
         verification_token = EmailVerificationToken.objects.get(token=token)
 
         if not verification_token.is_valid():
@@ -47,6 +49,49 @@ def verify_email(request):
     except Exception as e:
         return Response({
             'error': 'Token Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def resend_verification(request):
+    """Reenviar el correo de verificacion"""
+    email = request.data.get('email')
+    
+    if not email:
+        return Response({
+            "error": "El email es un campo requrido"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Si existe debemos buscarlo en la base de datos
+    try:
+        # Buscar al usuario por correo -> usuario
+        # De esa busqueda podemos crear el token
+        # antes de crear un nuevo token tenemos que invalidar los anteriores
+        user = User.objects.get(email=email, is_active=False)
+
+        # buscamos los okten
+        # lista de token por usuario y que NO estan usados y a la vez estamos haciendo el update para que pase el campo used a True
+        EmailVerificationToken.objects.filter(user=user, used=False).update(used=True)
+
+        # creamos un nuevo token
+        verification_token = EmailVerificationToken.objects.create(user=user)
+        # los correos se envian de forma automatica
+        # la instancia es requerida porque en el init de EmailService estamos adjuntando el token de Resend
+        email_service = EmailService()
+        success, result = email_service.send_verification_email(user, verification_token)
+
+        if success:
+            return Response({
+                'message': 'Email de verificación enviado'
+            })
+
+        return Response({
+            'error': f'Error: {result}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({
+            "error": f"Error: {e}"
         }, status=status.HTTP_400_BAD_REQUEST)
 
 

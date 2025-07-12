@@ -79,7 +79,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
 
         return user
-    
+
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer()

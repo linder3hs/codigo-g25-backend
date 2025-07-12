@@ -100,6 +100,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 def send_verification_on_registration(sender, instance, created, **kwargs):
     """ Envia el correo al momento de registrarnos """
     if created:
+        # crear un token
         verification_token = EmailVerificationToken.objects.create(user=instance)
         print(verification_token)
         print(verification_token.token)
