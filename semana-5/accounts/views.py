@@ -57,12 +57,12 @@ def verify_email(request):
 def resend_verification(request):
     """Reenviar el correo de verificacion"""
     email = request.data.get('email')
-    
+
     if not email:
         return Response({
             "error": "El email es un campo requrido"
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # Si existe debemos buscarlo en la base de datos
     try:
         # Buscar al usuario por correo -> usuario
