@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { verifyEmail } from "@/service/fetching";
 
 export default function VerifyEmail() {
   const params = useSearchParams();
@@ -21,16 +22,7 @@ export default function VerifyEmail() {
   const handleValidateToken = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/v1/auth/verify-email/",
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({ token: params.get("token") }),
-        }
-      );
+      const response = await verifyEmail(params.get("token"));
 
       setSuccess(response.ok);
     } catch (error) {

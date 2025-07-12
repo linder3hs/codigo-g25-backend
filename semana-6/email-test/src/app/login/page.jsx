@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { signIn } from "@/service/fetching";
 
 export default function Login() {
   const [inputs, setInputs] = useState({
@@ -68,16 +69,7 @@ export default function Login() {
     setErrors({});
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/v1/token", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          username: inputs.username,
-          password: inputs.password,
-        }),
-      });
+      const response = await signIn(inputs);
 
       if (!response.ok) {
         const errorData = await response.json();

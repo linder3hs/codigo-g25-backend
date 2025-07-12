@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { singUp } from "@/service/fetching";
 
 export function Register() {
   const [inputs, setInputs] = useState({
@@ -34,13 +35,7 @@ export function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/v1/users/", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(inputs),
-      });
+      const response = await singUp(inputs);
 
       if (!response.ok) {
         const error = JSON.stringify(await response.json(), null, 2);
