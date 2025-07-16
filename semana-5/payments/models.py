@@ -1,5 +1,6 @@
 from django.db import models
 from products.models import Product
+from datetime import datetime
 
 class Order(models.Model):
   STATUS_CHOICES = [
@@ -35,6 +36,26 @@ class Order(models.Model):
   
   def __str__(self):
      return f"{self.preference_id}"
+  
+  def save(self, *args, **kwargs):
+      if not self.order_number:
+          self.order_number = self.generate_order_numer()
+      super().save(*args, **kwargs)
+
+  def generate_order_numer(self):
+      """
+      Formato MP-YYYYMMDD-XXXX
+      """
+      today = datetime.now().strftime('%Y%m%d')
+      last_order = Order.objects.filter(order_numer__startswith=f'MP-{today}').order_by('-order_number').first()
+
+      if last_order:
+          last_num = int(last_order.order_number.split('-')[-1])
+          next_num = last_num + 1
+      else:
+          next_num = 1
+
+      return f'MP-{today}-{next_num:04d}'
 
 
 class OrderItem(models.Model):
@@ -50,3 +71,7 @@ class OrderItem(models.Model):
     def __str__(self):
        return f"{self.product.name} - {self.order.order_number}"
   
+    def save(self, *args, **kwargs):
+        """Calcular el total unit_pice * quantity"""
+        self.total_price = self.quantity * self.unit_price
+        return super().save(*args, **kwargs)
