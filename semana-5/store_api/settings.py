@@ -47,8 +47,16 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',
     'products',
-    'categories'
+    'categories',
+    'payments'
 ]
+
+# VARIABLES DE MERCADOPAGO
+MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
+MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY")
+# SANDBOX (Modo prueba)
+MERCADOPAGO_SANDBOX = True
+BASE_URL = 'http://localhost:8000'
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
