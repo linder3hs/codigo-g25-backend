@@ -16,3 +16,13 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} - S/ {self.price}"
+
+    def to_mercadopago_item(self, quantity=1):
+        return {
+            "id": self.id,
+            "title": self.name,
+            "description": self.description,
+            "quantity": quantity,
+            "unit_price": float(self.price),
+            "currency_id": "PEN"
+        }
