@@ -36,11 +36,20 @@ def create_payment(request):
                 'message': 'Datos invalidos',
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-        
         validated_data = serializer.validated_data
 
         # crear la orden
         order = create_order_from_data(validated_data)
+
+        if not order:
+            return Response({
+                'success': False,
+                'message': 'Error al crear la orden',
+                'errors': str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
     except Exception as e:
         return Response({
                 'success': False,
@@ -75,5 +84,27 @@ def create_order_from_data(validated_data):
             })
 
         # crear la orden
-    except Exception:
+        order = Order.objects.create(
+            customer_email=validated_data['customer_email'],
+            customer_name=validated_data['customer_name'],
+            customer_phone=validated_data.get('customer_phone', ''),
+            total_amount=total_amount
+        )
+
+        # crear los items de la orden
+        for item_data in items_data:
+            OrderItem.objects.create(
+                order=order,
+                product=item_data['product'],
+                quantity=item_data['quantity'],
+                unit_price=item_data['unit_price']
+            )
+
+            # reducir el stock
+            product = item_data['product']
+            product.stock -= item_data['quantity']
+            product.save()
+        return order
+    except Exception as e:
+        print(f"Error al crear la orden: {e}")
         return None
