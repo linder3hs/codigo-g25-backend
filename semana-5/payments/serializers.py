@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from products.models import Product
-
+from .models import Order
 
 class CreateOrderItemSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
@@ -44,3 +44,30 @@ class CreateOrderSerializer(serializers.Serializer):
         if not value:
             raise serializers.ValidationError("La orden debe tener al menos un producto.")
         return value
+
+
+class OrderResponseSerializer(serializers.ModelSerializer):
+    """
+    Serializer para mostrar el detalle de la orden
+    """
+    items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ['id', 'order_number', 'customer_email', 'customer_name',
+                  'total_amount', 'status', 'payment_status', 'created_at',
+                  'items']
+
+    def get_items(self, obj):
+        """
+        Items de la orden
+        """
+        return [
+            {
+                "product_name": item.product.name,
+                "quantity": item.quantity,
+                'unit_price': str(item.unit_price),
+                'total_price': str(item.total_price)
+            }
+            for item in obj.items.all()
+        ]
