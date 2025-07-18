@@ -14,6 +14,8 @@ from .serializers import (
   PaymentLinkSerializer,
   PaymentStatusSerializer
 )
+import traceback
+import sys
 from django.conf import settings
 from decimal import Decimal
 from .services import MercadoPagoService
@@ -26,7 +28,6 @@ def create_payment(request):
     Endpoint para poder crear un nuevo pago
     /api/payments/create/
     """
-
     try:
         # Validar data de entrada
         serializer = CreateOrderSerializer(data=request.data)
@@ -37,6 +38,7 @@ def create_payment(request):
                 'message': 'Datos invalidos',
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+        
         validated_data = serializer.validated_data
 
         # crear la orden
@@ -46,7 +48,6 @@ def create_payment(request):
             return Response({
                 'success': False,
                 'message': 'Error al crear la orden',
-                'errors': str(e),
             }, status=status.HTTP_400_BAD_REQUEST)
 
         mercadopago_service = MercadoPagoService()
@@ -60,6 +61,8 @@ def create_payment(request):
         }
 
         mercadopago_response = mercadopago_service.create_preference(items, order_data)
+
+        print(mercadopago_response)
 
         if mercadopago_response.get('success'):
             order.preference_id = mercadopago_response.get('preference_id')
@@ -81,12 +84,35 @@ def create_payment(request):
                 'payment_link': payment_url,
                 'preference_id': mercadopago_response.get('preference_id')
             }, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return Response({
+        else:
+            # Manejar el caso cuando MercadoPago falla
+            return Response({
                 'success': False,
-                'message': 'Datos invalidos',
-                'errors': str(e),
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                'message': 'Error al crear preferencia de pago',
+                'errors': mercadopago_response.get('error', 'Error desconocido')
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        
+        # Extract the last frame information (where the error occurred)
+        tb_info = traceback.extract_tb(exc_traceback)[-1]
+        
+        # Get the filename and line number
+        filename = tb_info.filename
+        line_number = tb_info.lineno
+        
+        print(f"An error occurred:")
+        print(f"  Type: {type(e).__name__}")
+        print(f"  Message: {e}")
+        print(f"  File: {filename}")
+        print(f"  Line: {line_number}")
+        
+        return Response({
+            'success': False,
+            'message': 'Error en el servidor',
+            'errors': str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def create_order_from_data(validated_data):
@@ -96,10 +122,12 @@ def create_order_from_data(validated_data):
         items_data = []
 
         for item_data in validated_data['items']:
+            print("---items_data----")
+            print(item_data)
             product = get_object_or_404(Product, id=item_data['product_id'])
             quantity = item_data['quantity']
 
-            # verificar el stack
+            # verificar el stock
             if product.stock < quantity:
                 return None
             
@@ -135,9 +163,26 @@ def create_order_from_data(validated_data):
             product = item_data['product']
             product.stock -= item_data['quantity']
             product.save()
+        
         return order
+        
     except Exception as e:
         print(f"Error al crear la orden: {e}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        
+        # Extract the last frame information (where the error occurred)
+        tb_info = traceback.extract_tb(exc_traceback)[-1]
+        
+        # Get the filename and line number
+        filename = tb_info.filename
+        line_number = tb_info.lineno
+        
+        print(f"An error occurred:")
+        print(f"  Type: {type(e).__name__}")
+        print(f"  Message: {e}")
+        print(f"  File: {filename}")
+        print(f"  Line: {line_number}")
+        
         return None
 
 
@@ -148,6 +193,8 @@ def prepare_mercadopago_items(order):
     items = []
 
     for order_item in order.items.all():
-        items.append(order_item.to_mercadopago_item(order_item.quantity))
+        print('----order_item---')
+        print(order_item)
+        items.append(order_item.product.to_mercadopago_item(order_item.quantity))
 
     return items

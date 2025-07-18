@@ -17,12 +17,12 @@ class MercadoPagoService:
         try:
             preference_data = {
                 "items": items,
-                "back_urls": {
-                    "success": f"{settings.BASE_URL}/api/payments/success/",
-                    "failure": f"{settings.BASE_URL}/api/payments/failure/",
-                    "pending": f"{settings.BASE_URL}/api/payments/pending/"
-                },
-                "auto_return": "approved",
+                # "back_urls": {
+                #     "success": f"{settings.BASE_URL}/api/payments/success/",
+                #     "failure": f"{settings.BASE_URL}/api/payments/failure/",
+                #     "pending": f"{settings.BASE_URL}/api/payments/pending/"
+                # },
+                # "auto_return": "approved",
                 "external_reference": str(order_data.get('order_id')),
                 "payer": {
                     "name": order_data.get('customer_name', ''),
@@ -32,7 +32,7 @@ class MercadoPagoService:
                         "number": order_data.get('customer_phone', '')
                     }
                 },
-                "notifiaction_url": f"{settings.BASE_URL}/api/payments/webhook",
+                "notification_url": f"{settings.BASE_URL}/api/payments/webhook/",
                 "payment_methods": {
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
@@ -44,7 +44,7 @@ class MercadoPagoService:
 
             # status === 201 (created)
             if response["status"] == 201:
-                preference = response["preference"]
+                preference = response["response"]
 
                 return {
                     "success": True,

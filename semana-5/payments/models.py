@@ -39,15 +39,15 @@ class Order(models.Model):
   
   def save(self, *args, **kwargs):
       if not self.order_number:
-          self.order_number = self.generate_order_numer()
+          self.order_number = self.generate_order_number()
       super().save(*args, **kwargs)
 
-  def generate_order_numer(self):
+  def generate_order_number(self):
       """
       Formato MP-YYYYMMDD-XXXX
       """
       today = datetime.now().strftime('%Y%m%d')
-      last_order = Order.objects.filter(order_numer__startswith=f'MP-{today}').order_by('-order_number').first()
+      last_order = Order.objects.filter(order_number__startswith=f'MP-{today}').order_by('-order_number').first()
 
       if last_order:
           last_num = int(last_order.order_number.split('-')[-1])
