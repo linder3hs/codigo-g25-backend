@@ -71,3 +71,24 @@ class OrderResponseSerializer(serializers.ModelSerializer):
             }
             for item in obj.items.all()
         ]
+
+
+class PaymentLinkSerializer(serializers.Serializer):
+    """
+    Serializer para la respuesta con link de pago
+    """
+    order_id = serializers.IntegerField()
+    preference_id = serializers.CharField()
+    payment_url = serializers.URLField()
+    sandbox_payment_url = serializers.URLField()
+
+
+class PaymentStatusSerializer(serializers.Serializer):
+    """
+    Serializer para consultar el estado de pago
+    """
+    order_id = serializers.IntegerField()
+    order_status = serializers.CharField()
+    payment_status = serializers.CharField()
+    payment_id = serializers.CharField(required=False)
+    total_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
