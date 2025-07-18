@@ -14,6 +14,7 @@ from .serializers import (
   PaymentLinkSerializer,
   PaymentStatusSerializer
 )
+from django.conf import settings
 from decimal import Decimal
 from .services import MercadoPagoService
 
@@ -48,8 +49,38 @@ def create_payment(request):
                 'errors': str(e),
             }, status=status.HTTP_400_BAD_REQUEST)
 
+        mercadopago_service = MercadoPagoService()
+        items = prepare_mercadopago_items(order)
 
+        order_data = {
+            'order_id': order.id,
+            'customer_email': order.customer_email,
+            'customer_name': order.customer_name,
+            'customer_phone': order.customer_phone
+        }
 
+        mercadopago_response = mercadopago_service.create_preference(items, order_data)
+
+        if mercadopago_response.get('success'):
+            order.preference_id = mercadopago_response.get('preference_id')
+            order.save()
+
+            order_serializer = OrderResponseSerializer(order)
+
+            # pasa que tenemos 2 url de pago
+            payment_url = (
+                mercadopago_response.get('sandbox_init_point')
+                if settings.MERCADOPAGO_SANDBOX
+                else mercadopago_response.get('init_point')
+            )
+
+            return Response({
+                'success': True,
+                'message': 'Orden creada exitosamente',
+                'order': order_serializer.data,
+                'payment_link': payment_url,
+                'preference_id': mercadopago_response.get('preference_id')
+            }, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({
                 'success': False,
@@ -108,3 +139,15 @@ def create_order_from_data(validated_data):
     except Exception as e:
         print(f"Error al crear la orden: {e}")
         return None
+
+
+def prepare_mercadopago_items(order):
+    """
+    Preparar la data para mercadopago
+    """
+    items = []
+
+    for order_item in order.items.all():
+        items.append(order_item.to_mercadopago_item(order_item.quantity))
+
+    return items
