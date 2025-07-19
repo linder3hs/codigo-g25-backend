@@ -107,7 +107,7 @@ def create_payment(request):
         print(f"  Message: {e}")
         print(f"  File: {filename}")
         print(f"  Line: {line_number}")
-        
+
         return Response({
             'success': False,
             'message': 'Error en el servidor',
@@ -130,7 +130,7 @@ def create_order_from_data(validated_data):
             # verificar el stock
             if product.stock < quantity:
                 return None
-            
+
             unit_price = product.price
             total_price = unit_price * quantity
             total_amount += total_price
@@ -163,26 +163,24 @@ def create_order_from_data(validated_data):
             product = item_data['product']
             product.stock -= item_data['quantity']
             product.save()
-        
         return order
-        
     except Exception as e:
         print(f"Error al crear la orden: {e}")
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        
+
         # Extract the last frame information (where the error occurred)
         tb_info = traceback.extract_tb(exc_traceback)[-1]
-        
+
         # Get the filename and line number
         filename = tb_info.filename
         line_number = tb_info.lineno
-        
+
         print(f"An error occurred:")
         print(f"  Type: {type(e).__name__}")
         print(f"  Message: {e}")
         print(f"  File: {filename}")
         print(f"  Line: {line_number}")
-        
+
         return None
 
 
@@ -198,3 +196,39 @@ def prepare_mercadopago_items(order):
         items.append(order_item.product.to_mercadopago_item(order_item.quantity))
 
     return items
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def webhook_notification(request):
+    """
+    Webhook para recibir notificaciones de mercadopago
+    """
+    print("========INFORMACION DEL WEBHOOK========")
+    mercadopago_data = request.data
+    notification_type = mercadopago_data.get('type')
+
+    if notification_type == 'payment':
+        payment_id = mercadopago_data.get('data').get('id')
+
+        if payment_id:
+            result = proccess_payment_notifacation(payment_id)
+            print(result)
+            return Response({
+                'data': result
+            })
+
+    return Response({
+            'error': 'Datos invaliddos'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+def proccess_payment_notifacation(payment_id):
+    try:
+        mercadopago_service = MercadoPagoService()
+        payment_info = mercadopago_service.get_payment_info(payment_id)
+
+        return payment_info
+    except Exception as e:
+        return f"Error: {e}"
