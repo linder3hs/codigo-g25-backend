@@ -53,7 +53,13 @@ class MercadoPagoService:
                     "excluded_payment_methods": [],
                     "excluded_payment_types": [],
                     "installments": 12
-                }
+                },
+                "back_urls": {
+                    "success": "https://codigo-g25.vercel.app/payment/success",
+                    "failure": "https://codigo-g25.vercel.app/payment/failure",
+                    "pending": "https://codigo-g25.vercel.app/payment/pending"
+                },
+                "auto_return": "approved"
             }
 
             # Solo agregar notification_url si es una URL pública
