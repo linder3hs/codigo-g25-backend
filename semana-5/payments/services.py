@@ -105,9 +105,9 @@ class MercadoPagoService:
         """
         try:
             response = self.sdk.payment().get(payment_id)
-            
+
             print(f"🔍 Payment response: {json.dumps(response, indent=2, default=str)}")
-            
+
             if response["status"] == 200:
                 # ✅ CORREGIDO: era response["payment"], debe ser response["response"]
                 payment = response["response"]

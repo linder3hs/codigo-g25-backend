@@ -229,6 +229,48 @@ def proccess_payment_notifacation(payment_id):
         mercadopago_service = MercadoPagoService()
         payment_info = mercadopago_service.get_payment_info(payment_id)
 
-        return payment_info
+        if not payment_info.get('success'):
+            return "Error al procesar el pago"
+
+        payment_data = payment_info.get('payment')
+        external_reference = payment_data.get('external_reference')
+
+        if not external_reference:
+            return "Sin external reference"
+
+        order = Order.objects.get(id=int(external_reference))
+
+        if not order:
+            return "Orden no encontrada"
+
+        order.payment_id = payment_data['id']
+        order.payment_status = payment_data['status']
+
+        if payment_data['status'] == "approved":
+            order.status = 'paid'
+            order.paid_at = payment_data.get('date_approved')
+        elif payment_data['status'] == 'pending':
+            order.status = 'pending'
+        elif payment_data['status'] == 'rejected':
+            order.status = 'failed'
+
+            # restaurar el stock
+            restore_order_stock(order)
+        order.save()
+
+        return f"Pago proecesado {order.order_number} - {order.status}"
     except Exception as e:
         return f"Error: {e}"
+
+
+def restore_order_stock(order):
+    """
+    Restaurar el stock
+    """
+    try:
+        for item in order.items.all():
+            product = item.product
+            product.stack += item.quantity
+            product.save()
+    except Exception as e:
+        print(f"Error {e}")
