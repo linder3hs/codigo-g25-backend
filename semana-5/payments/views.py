@@ -19,6 +19,7 @@ import sys
 from django.conf import settings
 from decimal import Decimal
 from .services import MercadoPagoService
+from services.email_service import EmailService
 
 
 @api_view(['POST'])
@@ -208,20 +209,27 @@ def webhook_notification(request):
     print("========INFORMACION DEL WEBHOOK========")
     mercadopago_data = request.data
     notification_type = mercadopago_data.get('type')
+    print("request.data")
+    print(mercadopago_data)
+
+    print("notification_type")
+    print(notification_type)
 
     if notification_type == 'payment':
         payment_id = mercadopago_data.get('data').get('id')
 
         if payment_id:
             result = proccess_payment_notifacation(payment_id)
+            print("-----RESULT DATA-------")
             print(result)
+            print("------END DATA------")
             return Response({
                 'data': result
             })
 
     return Response({
             'error': 'Datos invaliddos'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        })
 
 
 def proccess_payment_notifacation(payment_id):
@@ -229,11 +237,22 @@ def proccess_payment_notifacation(payment_id):
         mercadopago_service = MercadoPagoService()
         payment_info = mercadopago_service.get_payment_info(payment_id)
 
+        print("-----payment_info-----")
+        print(payment_info)
+        print("*"*50)
+
         if not payment_info.get('success'):
             return "Error al procesar el pago"
 
         payment_data = payment_info.get('payment')
+       
         external_reference = payment_data.get('external_reference')
+        print("-----payment_data-----")
+        print("-----payment_data-----")
+        print(payment_data)
+        print("*"*50)
+        print(external_reference)
+        print("*"*50)
 
         if not external_reference:
             return "Sin external reference"
@@ -246,9 +265,30 @@ def proccess_payment_notifacation(payment_id):
         order.payment_id = payment_data['id']
         order.payment_status = payment_data['status']
 
+        email_service = EmailService()
+
+        payment_data_to_email = {
+            "payment": {
+                "payer_email": "linderhassinger@helloiconic.com",
+                "status": payment_data.get('status'),
+                "order_items": payment_data.get('items'),
+                "currency_id": payment_data.get("currency_id"),
+                "transaction_amount": payment_data.get("transaction_amount"),
+                "id": payment_data.get("id"),
+                "external_reference": payment_data.get("external_reference"),
+                "payment_method_id": payment_data.get("payment_method_id"),
+                "payment_type_id": payment_data.get("payment_type_id"),
+                "date_created": payment_data.get("date_created"),
+                "date_approved": payment_data.get("date_approved")
+            }
+        }
+
         if payment_data['status'] == "approved":
+            # send email
             order.status = 'paid'
             order.paid_at = payment_data.get('date_approved')
+
+            email_service.send_verification_payment("linder.hassinger@helloiconic.com", payment_data_to_email)
         elif payment_data['status'] == 'pending':
             order.status = 'pending'
         elif payment_data['status'] == 'rejected':

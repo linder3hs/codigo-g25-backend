@@ -1,0 +1,231 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Pago Exitoso{% endblock %}
+
+{% block header %}¡Pago Confirmado!{% endblock %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 20px">
+  ¡Hola {{ payment.payer_email }}!
+</h2>
+
+<p style="font-size: 16px; margin-bottom: 20px">
+  ¡Gracias por tu compra! Tu pago ha sido procesado exitosamente.
+</p>
+
+<div class="highlight">
+  <p style="margin: 0; font-weight: 600">
+    ✅ Estado del pago: <strong>{{ payment.status }}</strong>
+  </p>
+</div>
+
+<!-- Sección de productos comprados -->
+<div style="
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+  ">
+  <h3 style="color: #333; margin-top: 0; margin-bottom: 15px">
+    Productos Comprados
+  </h3>
+
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+    <thead>
+      <tr>
+        <th style="
+            text-align: left;
+            padding: 8px 0;
+            border-bottom: 2px solid #dee2e6;
+          ">
+          Producto
+        </th>
+        <th style="
+            text-align: center;
+            padding: 8px 0;
+            border-bottom: 2px solid #dee2e6;
+          ">
+          Cantidad
+        </th>
+        <th style="
+            text-align: right;
+            padding: 8px 0;
+            border-bottom: 2px solid #dee2e6;
+          ">
+          Precio
+        </th>
+        <th style="
+            text-align: right;
+            padding: 8px 0;
+            border-bottom: 2px solid #dee2e6;
+          ">
+          Total
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order_items %}
+      <tr>
+        <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef">
+          {{ item.product.name }}
+        </td>
+        <td style="
+            text-align: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+          ">
+          {{ item.quantity }}
+        </td>
+        <td style="
+            text-align: right;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+          ">
+          {{ payment.currency_id }} {{ item.unit_price }}
+        </td>
+        <td style="
+            text-align: right;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+          ">
+          {{ payment.currency_id }} {{ item.unit_price }}
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="3" style="text-align: right; padding: 12px 0; font-weight: 600">
+          Total:
+        </td>
+        <td style="
+            text-align: right;
+            padding: 12px 0;
+            font-weight: 700;
+            color: #28a745;
+          ">
+          {{ payment.currency_id }} {{ payment.transaction_amount }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+  ">
+  <h3 style="color: #333; margin-top: 0; margin-bottom: 15px">
+    Detalles del Pago
+  </h3>
+
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        ID de Pago:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.id }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        Referencia:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.external_reference }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        Monto:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.currency_id }} {{ payment.transaction_amount }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        Método de pago:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.payment_method_id }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        Tipo de pago:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.payment_type_id }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #666">
+        Fecha de creación:
+      </td>
+      <td style="
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+          font-weight: 600;
+          text-align: right;
+        ">
+        {{ payment.date_created }}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; color: #666">Fecha de aprobación:</td>
+      <td style="padding: 8px 0; font-weight: 600; text-align: right">
+        {{ payment.date_approved }}
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p style="font-size: 16px; margin-bottom: 20px">
+  Hemos recibido tu pago correctamente. Tu pedido está siendo procesado y te
+  notificaremos cuando sea enviado.
+</p>
+
+<div style="text-align: center; margin: 30px 0">
+  <a href="#" class="button"> 🛍️ Ver mi pedido </a>
+</div>
+
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #e9ecef" />
+
+<p style="font-size: 14px; color: #666">
+  Si tienes alguna pregunta sobre tu compra, no dudes en contactar a nuestro
+  equipo de soporte.
+</p>
+
+<p style="font-size: 16px; margin-top: 30px">
+  ¡Gracias por tu compra! 🚀<br />
+  <strong>El equipo de Mi Aplicación</strong>
+</p>
+{% endblock %}

@@ -28,7 +28,7 @@ ALLOWED_HOSTS = [
   'localhost',
   '127.0.0.1',
   '.onrender.com',
-  '82e00cf6491d.ngrok-free.app'
+  '00026bf122a2.ngrok-free.app',
 ]
 
 
@@ -59,7 +59,7 @@ MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY")
 # SANDBOX (Modo prueba)
 MERCADOPAGO_SANDBOX = True
-BASE_URL = 'https://82e00cf6491d.ngrok-free.app'
+BASE_URL = 'https://00026bf122a2.ngrok-free.app'
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (

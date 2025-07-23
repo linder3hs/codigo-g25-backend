@@ -14,7 +14,6 @@ from .serializers import (
 )
 
 
-
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def verify_email(request):

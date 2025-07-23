@@ -131,6 +131,7 @@ class MercadoPagoService:
                         "date_created": payment["date_created"],
                         "date_approved": payment["date_approved"],
                         "payer_email": payment["payer"]["email"],
+                        "items": payment["additional_info"]["items"]
                     }
                 }
             return {

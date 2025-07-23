@@ -33,6 +33,17 @@ class EmailService:
         except Exception as e:
             print(f"Hubo un error en el envio de correo {e}")
             return False, str(e)
+        
+
+    def send_verification_payment(self, email, payment_data):
+        """ Correo de verificacion de pago """
+        
+
+        html_content = render_to_string('emails/payment_success.html', payment_data)
+        subject = "Verifica tu email"
+
+        return self.send_email(email, subject, html_content)
+
     
 
     def send_verification_email(self, user, verification_token):
