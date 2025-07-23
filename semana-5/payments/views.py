@@ -314,3 +314,52 @@ def restore_order_stock(order):
             product.save()
     except Exception as e:
         print(f"Error {e}")
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_payment_info(request, payment_id):
+    """
+    Obtener el detalle del pago
+    """
+    try:
+        mercado_pago_service = MercadoPagoService()
+        payment_info_response = mercado_pago_service.get_payment_info(payment_id)
+
+        if not payment_info_response["success"]:
+            return Response({
+                'success': False,
+                'message': 'Pago no encontrado',
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        payment_data = payment_info_response.get('payment')
+
+        response_data = {
+            'success': True,
+            'payment': payment_data
+        }
+
+        external_reference = payment_data.get('external_reference')
+
+        if external_reference:
+            try:
+                order = Order.objects.get(id=int(external_reference))
+                order_serializer = OrderResponseSerializer(order)
+
+                response_data['order'] = order_serializer.data
+            except Order.DoesNotExist:
+                response_data['order'] = {
+                    'external_reference': external_reference,
+                    'found': False,
+                    'message': 'Order no encontrada'
+                }
+        else:
+            print("External reference not found")
+
+        return Response(response_data)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': 'Error en el servidor',
+            'errors': str(e),
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
