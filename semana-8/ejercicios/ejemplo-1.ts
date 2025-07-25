@@ -23,7 +23,9 @@ function sumar(n1: number, n2: number): string {
 
 sumar(10, 11);
 
-let username: string | null = null;
+type StringOrNull = string | null;
+
+let username: StringOrNull = null;
 username = "linder3hs";
 
 // cundo una variable o parametro tiene el simbolo "?" es opcional
@@ -69,3 +71,12 @@ personas.push({
   direccion: "av mi cas",
   skills: ["JS", "TS"],
 });
+
+type State = "activo" | "pagado" | "cancelado" | "en_progreso";
+type Methods = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+const currentState: State = "activo";
+
+function makeRequest(method: Methods) {}
+
+makeRequest("POST");
