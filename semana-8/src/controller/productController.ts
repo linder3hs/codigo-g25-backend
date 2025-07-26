@@ -22,4 +22,28 @@ export class ProductController {
       );
     }
   }
+
+  static async createProduct(
+    req: Request<{}, any, CreateProductRequest>,
+    res: Response
+  ): Promise<void> {
+    try {
+      const productData = req.body;
+      const newProduct = await ProductService.createProduct(productData);
+
+      sendSuccess<CreateProductRequest>(
+        res,
+        "Product creado existosamente",
+        newProduct,
+        201
+      );
+    } catch (error) {
+      sendError(
+        res,
+        "Error al crear un producto",
+        500,
+        error instanceof Error ? error.message : "Error Desconocido"
+      );
+    }
+  }
 }
