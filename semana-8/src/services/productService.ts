@@ -39,5 +39,11 @@ export class ProductService {
     };
   }
 
-  static async createProduct() {}
+  static async createProduct(data: CreateProductRequest) {
+    const product = await prisma.product.create({
+      data,
+    });
+
+    return product;
+  }
 }
