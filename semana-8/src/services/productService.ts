@@ -39,6 +39,10 @@ export class ProductService {
     };
   }
 
+  static async getProductById(id: number) {
+    return await prisma.product.findUnique({ where: { id } });
+  }
+
   static async createProduct(data: CreateProductRequest) {
     const product = await prisma.product.create({
       data,

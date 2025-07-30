@@ -23,6 +23,26 @@ export class ProductController {
     }
   }
 
+  static async getProductById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      const result = await ProductService.getProductById(id);
+
+      if (!result) {
+        sendError(res, "Producto no encontrado", 400);
+        return;
+      }
+      sendSuccess(res, "Producto encontrado", result);
+    } catch (error) {
+      sendError(
+        res,
+        "Error al obtener products",
+        500,
+        error instanceof Error ? error.message : "Error Desconocido"
+      );
+    }
+  }
+
   static async createProduct(
     req: Request<{}, any, CreateProductRequest>,
     res: Response
