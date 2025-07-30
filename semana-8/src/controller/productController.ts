@@ -61,4 +61,20 @@ export class ProductController {
       );
     }
   }
+
+  static async deleteProduct(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      const result = await ProductService.deleteProduct(id);
+
+      sendSuccess(res, "Product eliminado existosamente", result);
+    } catch (error) {
+      sendError(
+        res,
+        "Error al eliminar un producto",
+        500,
+        error instanceof Error ? error.message : "Error Desconocido"
+      );
+    }
+  }
 }

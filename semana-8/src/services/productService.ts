@@ -50,4 +50,8 @@ export class ProductService {
 
     return product;
   }
+
+  static async deleteProduct(id: number) {
+    return await prisma.product.delete({ where: { id } });
+  }
 }
