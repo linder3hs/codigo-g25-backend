@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./config/database";
-import productRoutes from "./routes/productRoutes";
+import { categoryRouter, productRouter } from "./routes";
 import { errorHandler, notFound } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -24,7 +24,8 @@ app.get("/", (request, response) => {
   });
 });
 
-app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/categories", categoryRouter);
 
 app.use(errorHandler);
 app.use(notFound);
