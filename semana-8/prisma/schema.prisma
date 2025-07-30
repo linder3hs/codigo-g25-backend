@@ -20,8 +20,23 @@ model Product {
   price       Decimal  @db.Decimal(10, 2)
   stock       Int      @default(0)
   isActive    Boolean  @default(true) @map("is_active")
+  categoryId  Int?     @map("category_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  category Category? @relation(fields: [categoryId], references: [id])
+
   @@map("products")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  Product   Product[]
+
+  @@map("categories")
 }
