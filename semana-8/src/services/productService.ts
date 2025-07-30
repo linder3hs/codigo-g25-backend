@@ -20,10 +20,22 @@ export class ProductService {
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
-        where,
-        include: {
-          category: true,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
+        where,
+        // include: {
+        //   category: true,
+        // },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
@@ -43,17 +55,24 @@ export class ProductService {
   }
 
   static async getProductById(id: number) {
-    return await prisma.product.findUnique({ where: { id } });
+    return await prisma.product.findUnique({
+      include: { category: true },
+      where: { id },
+    });
   }
 
   static async createProduct(data: CreateProductRequest) {
     return await prisma.product.create({
+      include: { category: true },
       data,
     });
   }
 
   static async updateProduct(id: number, data: UpdateProductRequest) {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true },
+    });
 
     if (!product) return false;
 
@@ -64,6 +83,9 @@ export class ProductService {
   }
 
   static async deleteProduct(id: number) {
-    return await prisma.product.delete({ where: { id } });
+    return await prisma.product.delete({
+      include: { category: true },
+      where: { id },
+    });
   }
 }
