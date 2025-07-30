@@ -21,6 +21,9 @@ export class ProductService {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
+        include: {
+          category: true,
+        },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,

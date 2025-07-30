@@ -11,6 +11,7 @@ export interface UpdateCategoryRequest {
 export interface CreateProductRequest {
   name: string;
   description?: string | null;
+  categoryId?: number;
   price: number;
   stock: number;
 }
@@ -18,6 +19,7 @@ export interface CreateProductRequest {
 export interface UpdateProductRequest {
   name?: string;
   description?: string;
+  categoryId?: number;
   price?: number;
   stock?: number;
   isActive?: boolean;
