@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { ProductService } from "../services/productService";
 import { sendSuccess, sendError } from "../utils/response";
-import { CreateProductRequest } from "../types";
+import { CreateProductRequest, UpdateProductRequest } from "../types";
 
 export class ProductController {
   static async getAllProduct(req: Request, res: Response): Promise<void> {
@@ -52,6 +52,32 @@ export class ProductController {
       const newProduct = await ProductService.createProduct(productData);
 
       sendSuccess(res, "Product creado existosamente", newProduct, 201);
+    } catch (error) {
+      sendError(
+        res,
+        "Error al crear un producto",
+        500,
+        error instanceof Error ? error.message : "Error Desconocido"
+      );
+    }
+  }
+
+  static async updateProduct(
+    req: Request<{ id: string }, any, UpdateProductRequest>,
+    res: Response
+  ): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      const data = req.body;
+
+      const result = await ProductService.updateProduct(id, data);
+
+      if (!result) {
+        sendError(res, "Error al actualizar el producto", 400);
+        return;
+      }
+
+      sendSuccess(res, "Product actualizado existosamente", result);
     } catch (error) {
       sendError(
         res,

@@ -44,11 +44,20 @@ export class ProductService {
   }
 
   static async createProduct(data: CreateProductRequest) {
-    const product = await prisma.product.create({
+    return await prisma.product.create({
       data,
     });
+  }
 
-    return product;
+  static async updateProduct(id: number, data: UpdateProductRequest) {
+    const product = await prisma.product.findUnique({ where: { id } });
+
+    if (!product) return false;
+
+    return await prisma.product.update({
+      where: { id },
+      data,
+    });
   }
 
   static async deleteProduct(id: number) {
